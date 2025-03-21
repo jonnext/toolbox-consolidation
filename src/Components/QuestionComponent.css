@@ -1,0 +1,74 @@
+@keyframes containerSpring {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  75% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes iconSpring {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.4) rotate(10deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(-10deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes pingPongRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-20deg);
+  }
+  75% {
+    transform: rotate(20deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.check-complete-container {
+  animation: containerSpring 0.5s ease-out;
+}
+
+.check-complete-icon {
+  animation: iconSpring 0.5s ease-out;
+  transform-origin: center;
+}
+
+.pencil-animate {
+  animation: pingPongRotate 3s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
+}
+
+.action-toolbar {
+  transform: translateY(0);
+  transition: transform 300ms ease-in-out;
+}
+
+.action-toolbar-completed {
+  transform: translateY(-24px);
+}
+
+.icon-container.success,
+.featured-icon.success {
+  background-color: #47cd89;
+}

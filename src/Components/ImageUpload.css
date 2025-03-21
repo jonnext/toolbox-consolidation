@@ -1,0 +1,61 @@
+.check-complete-container {
+  animation: spring 0.5s ease-in-out;
+}
+
+@keyframes spring {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.icon-focus-animate {
+  animation: pingpong 2s ease-in-out infinite;
+}
+
+@keyframes pingpong {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-in-out forwards;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    max-height: 174px;
+    margin-bottom: 16px;
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.content-slide-up {
+  animation: contentSlideUp 0.3s ease-in-out forwards;
+}
+
+@keyframes contentSlideUp {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-190px);
+  }
+}
