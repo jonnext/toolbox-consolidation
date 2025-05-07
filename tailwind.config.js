@@ -5,6 +5,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Inter", "sans-serif"],
+        suisse: ["Suisse Neue", "sans-serif"],
+        fk: ["FK Grotesk Neue", "sans-serif"],
       },
       keyframes: {
         spring: {
