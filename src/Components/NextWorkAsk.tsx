@@ -31,19 +31,8 @@ const NextWorkAsk = forwardRef<HTMLDivElement, NextWorkAskProps>(
     const rootRef = (ref as React.RefObject<HTMLDivElement>) || localRef;
 
     useEffect(() => {
-      function handleClick(e: MouseEvent) {
-        if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-          props.onRequestClose();
-        }
-      }
-      document.addEventListener("mousedown", handleClick);
-      return () => document.removeEventListener("mousedown", handleClick);
-    }, [rootRef, props]);
-
-    useEffect(() => {
-      if (ref && typeof ref === "object") {
-        console.log("[NextWorkAsk] ref current:", ref.current);
-      }
+      // Click-outside logic removed. Closing is now handled by the parent (TextSelectionToolbarProvider)
+      // This avoids double-closing and ensures correct Ask UI behavior.
     }, [ref]);
 
     // Handler for textarea change
@@ -184,14 +173,6 @@ const NextWorkAsk = forwardRef<HTMLDivElement, NextWorkAskProps>(
     return (
       <div
         ref={rootRef}
-        onMouseDownCapture={(e) => {
-          if (typeof window !== "undefined") window.clickedInsideAsk = true;
-          console.log(
-            "[NextWorkAsk] onMouseDownCapture fired. Target:",
-            e.target
-          );
-        }}
-        // Make the component take full width of its parent container and set vertical padding to 12px
         className="w-full bg-white rounded-xl shadow py-4 px-6 relative focus:outline-none"
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
