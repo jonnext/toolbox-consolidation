@@ -16,7 +16,8 @@
 
     /* Linting */
     "strict": false,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["node"]
   },
   "include": ["src"]
 }

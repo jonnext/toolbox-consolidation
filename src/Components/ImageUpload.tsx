@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
 import {
-  Camera,
   Upload,
   X,
   AlertCircle,
@@ -9,10 +8,9 @@ import {
   MessageCircle,
 } from "lucide-react";
 import FlipBackwardIcon from "../assets/Buttons/flip-backward.svg";
-import MessageQuestionCircle from "../assets/Buttons/message-question-circle.svg";
 import CheckWhite from "../assets/Buttons/check-white.svg";
 import { Button, Tooltip } from "./UI";
-import { useFileDragDrop, UploadingFile } from "../hooks/useFileDragDrop";
+import { useFileDragDrop } from "../hooks/useFileDragDrop";
 import { ACCEPTED_FILE_TYPES, MAX_FILE_SIZE_MB } from "../constants";
 import "./ImageUpload.css";
 
@@ -29,7 +27,6 @@ const ImageUpload: React.FC<FileUploadProps> = ({
 }) => {
   const [isActive, setIsActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
   const [isReturned, setIsReturned] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,12 +66,10 @@ const ImageUpload: React.FC<FileUploadProps> = ({
 
   const handleReturnToLater = () => {
     setIsReturned(true);
-    setIsFocused(false);
   };
 
   const handleResetFromReview = () => {
     setIsReturned(false);
-    setIsFocused(true);
   };
 
   const renderUploadState = () => {

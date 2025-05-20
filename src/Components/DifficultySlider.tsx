@@ -62,9 +62,8 @@ const DifficultySlider: React.FC<DifficultySliderProps> = ({
 
     const containerRect = containerRef.current.getBoundingClientRect();
     const handleWidth = 48; // 12 * 4 (w-12 = 3rem = 48px)
-    const containerPadding = 12; // px-3 = 0.75rem = 12px
 
-    // Calculate the effective track width (container width minus handle width and padding)
+    // Calculate the effective track width (container width minus handle width)
     const effectiveTrackWidth = containerRect.width - handleWidth;
 
     // Calculate position relative to the container's left edge

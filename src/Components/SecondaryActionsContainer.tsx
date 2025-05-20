@@ -1,3 +1,4 @@
+import React from "react";
 import { Edit } from "lucide-react";
 import Tooltip from "./Tooltip";
 import { DifficultyLevel } from "./DifficultySlider";

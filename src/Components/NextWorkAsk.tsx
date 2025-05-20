@@ -8,6 +8,13 @@ interface NextWorkAskProps {
   onRequestClose: () => void;
 }
 
+// --- Chat message type for AI chat history ---
+interface ChatMessage {
+  sender: "user" | "ai";
+  text: string;
+  imageUrls?: string[];
+}
+
 const NextWorkAsk = forwardRef<HTMLDivElement, NextWorkAskProps>(
   (props, ref) => {
     // State management
@@ -17,8 +24,7 @@ const NextWorkAsk = forwardRef<HTMLDivElement, NextWorkAskProps>(
     const [error, setError] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [isSending, setIsSending] = useState(false);
-    // Placeholder for chatbot window state
-    const [showChatbot, setShowChatbot] = useState(false);
+    const [messages, setMessages] = useState<ChatMessage[]>([]); // Chat history
     // Track which image is hovered/focused for tooltip preview
     const [hoveredPreviewIdx, setHoveredPreviewIdx] = useState<number | null>(
       null
@@ -50,18 +56,56 @@ const NextWorkAsk = forwardRef<HTMLDivElement, NextWorkAskProps>(
       window.open("https://community.nextwork.org", "_blank", "noopener");
     };
 
-    // Handler for send button (placeholder)
-    const handleSend = () => {
+    // --- Updated send handler for AI chat ---
+    const handleSend = async () => {
       if (!questionText && attachedImages.length === 0) return;
       setIsSending(true);
-      // Placeholder: open chatbot window
-      setTimeout(() => {
-        setShowChatbot(true);
-        setIsSending(false);
+      setError(null);
+
+      // Prepare user message for chat history
+      const userMessage: ChatMessage = {
+        sender: "user",
+        text: questionText,
+        imageUrls:
+          imagePreviewUrls.length > 0 ? [...imagePreviewUrls] : undefined,
+      };
+      setMessages((prev) => [...prev, userMessage]);
+
+      // Prepare FormData for API
+      const formData = new FormData();
+      formData.append("message", questionText);
+      attachedImages.forEach((file) => {
+        formData.append("images", file);
+      });
+
+      try {
+        const res = await fetch("http://localhost:4000/api/ask", {
+          method: "POST",
+          body: formData,
+        });
+        if (!res.ok) {
+          throw new Error("Failed to get AI response");
+        }
+        const data = await res.json();
+        setMessages((prev) => [
+          ...prev,
+          { sender: "ai", text: String(data.ai) },
+        ]);
         setQuestionText("");
         setAttachedImages([]);
         setImagePreviewUrls([]);
-      }, 1000);
+      } catch (err) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "ai",
+            text: "Sorry, there was an error getting a response.",
+          },
+        ]);
+        setError("Error sending message. Please try again.");
+      } finally {
+        setIsSending(false);
+      }
     };
 
     // Keyboard accessibility: Enter to send, Esc to clear
@@ -440,45 +484,49 @@ const NextWorkAsk = forwardRef<HTMLDivElement, NextWorkAskProps>(
           </div>
         )}
 
-        {/* Placeholder for AI chatbot window */}
-        {showChatbot && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative">
-              {/* Close button - set icon to #403B39 */}
-              <button
-                className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-700 focus:outline-none relative"
-                aria-label="Close chatbot"
-                onClick={() => setShowChatbot(false)}
-                onMouseEnter={() => setHoveredPreviewIdx(-4)}
-                onMouseLeave={() => setHoveredPreviewIdx(null)}
-                onFocus={() => setHoveredPreviewIdx(-4)}
-                onBlur={() => setHoveredPreviewIdx(null)}
+        {/* Render chat history above input area */}
+        {messages.length > 0 && (
+          <div
+            className="max-h-64 overflow-y-auto mb-3 flex flex-col gap-2"
+            aria-live="polite"
+          >
+            {messages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex ${
+                  msg.sender === "user" ? "justify-end" : "justify-start"
+                }`}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#403B39"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                <div
+                  className={`rounded-lg px-3 py-2 max-w-[80%] text-base whitespace-pre-line ${
+                    msg.sender === "user"
+                      ? "bg-blue-100 text-blue-900"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
                 >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-                {/* Tooltip for close */}
-                {hoveredPreviewIdx === -4 && <IconTooltip text="Close" />}
-              </button>
-              <div className="text-lg font-semibold mb-2">
-                AI Chatbot (Coming Soon)
+                  {msg.text}
+                  {msg.imageUrls && msg.imageUrls.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {msg.imageUrls.map((url, i) => (
+                        <img
+                          key={i}
+                          src={url}
+                          alt="User upload"
+                          className="max-w-xs max-h-32 rounded"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="text-gray-600">
-                Your question has been sent! This is a placeholder for the AI
-                chat window.
+            ))}
+            {isSending && (
+              <div className="flex justify-start">
+                <div className="rounded-lg px-3 py-2 bg-gray-100 text-gray-800 max-w-[80%]">
+                  <span className="animate-pulse">AI is typing…</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { useRive, useStateMachineInput } from "@rive-app/react-canvas";
+import { useRive } from "@rive-app/react-canvas";
 import { useEffect } from "react";
 import "./AnimationComponent.css";
 

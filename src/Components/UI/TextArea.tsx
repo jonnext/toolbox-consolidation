@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  TextareaHTMLAttributes,
-} from "react";
+import React, { useRef, useEffect, TextareaHTMLAttributes } from "react";
 import { ProgressIndicator } from "./index";
 import { useCharacterLimit } from "../../hooks/useCharacterLimit";
 import { MAX_TEXT_LENGTH } from "../../constants";

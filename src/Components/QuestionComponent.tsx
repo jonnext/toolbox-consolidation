@@ -1,12 +1,8 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import FlipBackwardIcon from "../assets/Buttons/flip-backward.svg";
-import CheckGreenIcon from "../assets/Buttons/check-green.svg";
 import PencilIcon from "../assets/Buttons/pencil-01.svg";
-import MessageQuestionCircle from "../assets/Buttons/message-question-circle.svg";
 import ListIcon from "../assets/Buttons/list.svg";
-import CheckIcon from "../assets/Buttons/check.svg";
 import CheckWhiteIcon from "../assets/Buttons/check-white.svg";
-import IconButton from "./IconButton";
 import "./QuestionComponent.css";
 import SecondaryActionsContainer from "./SecondaryActionsContainer";
 import DifficultySlider from "./DifficultySlider";
@@ -15,24 +11,18 @@ import { DifficultyLevel } from "./DifficultySlider";
 
 const QuestionComponent: React.FC = () => {
   const [answer, setAnswer] = useState("");
-  const [savedAnswer, setSavedAnswer] = useState("");
   const [userHasTyped, setUserHasTyped] = useState(false);
   const [hasCompletedWord, setHasCompletedWord] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [markedForReview, setMarkedForReview] = useState(false);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [feedback, setFeedback] = useState<string>("");
-  const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
   const [isDifficultyMode, setIsDifficultyMode] = useState(false);
   const [currentDifficulty, setCurrentDifficulty] =
     useState<DifficultyLevel>("easy");
-  const [currentQuestion, setCurrentQuestion] = useState<string>("");
   const [showPulse, setShowPulse] = useState(false);
 
   const maxLength = 250;
   const remainingChars = maxLength - answer.length;
-  const progress = (answer.length / maxLength) * 100;
   const isActive = userHasTyped && hasCompletedWord;
 
   const isNearLimit = remainingChars <= Math.floor(maxLength * 0.2);
@@ -79,14 +69,6 @@ const QuestionComponent: React.FC = () => {
     setIsFocused(true);
   };
 
-  const handleReturnToLater = () => {
-    setSavedAnswer(answer);
-    setMarkedForReview(true);
-    setIsFocused(false);
-    setUserHasTyped(true);
-    setHasCompletedWord(true);
-  };
-
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey && isActive) {
       e.preventDefault();
@@ -116,71 +98,6 @@ const QuestionComponent: React.FC = () => {
   const handleDifficultyChange = (difficulty: DifficultyLevel) => {
     setCurrentDifficulty(difficulty);
   };
-
-  const handleQuestionChange = (question: string) => {
-    setCurrentQuestion(question);
-  };
-
-  const getFeedback = useCallback(async () => {
-    setIsLoadingFeedback(true);
-    try {
-      // Check if API key exists
-      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-
-      if (!apiKey) {
-        setFeedback(
-          "OpenAI API key is not configured. Please add your API key to the .env file to use the feedback feature."
-        );
-        setIsLoadingFeedback(false);
-        return;
-      }
-
-      const response = await fetch(
-        "https://api.openai.com/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            model: "gpt-4",
-            messages: [
-              {
-                role: "system",
-                content:
-                  "You are a helpful programming tutor. Analyze the following answer about S3 storage and provide constructive feedback. Include both strengths and areas for improvement.",
-              },
-              {
-                role: "user",
-                content: answer,
-              },
-            ],
-            temperature: 0.7,
-            max_tokens: 500,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("API Error:", errorData);
-        throw new Error(errorData.error?.message || "API request failed");
-      }
-
-      const data = await response.json();
-      console.log("API Response:", data);
-      setFeedback(data.choices[0].message.content);
-    } catch (error) {
-      console.error("Error getting feedback:", error);
-      setFeedback(
-        "Sorry, there was an error getting feedback. Please try again. Error: " +
-          (error instanceof Error ? error.message : "Unknown error")
-      );
-    } finally {
-      setIsLoadingFeedback(false);
-    }
-  }, [answer]);
 
   return (
     <div className="w-[688px] h-[214px] bg-white justify-start items-start gap-6 inline-flex relative">
@@ -231,7 +148,6 @@ const QuestionComponent: React.FC = () => {
             <DifficultyQuestion
               difficulty={currentDifficulty}
               topic="S3 storage"
-              onQuestionChange={handleQuestionChange}
             />
           </div>
 
@@ -318,32 +234,6 @@ const QuestionComponent: React.FC = () => {
             {!isDifficultyMode && !isCompleted && (
               <div className="mt-1 text-left self-stretch text-[#667085] text-xs font-normal font-['Inter'] leading-[18px] transition-opacity duration-200">
                 {/* Message removed */}
-              </div>
-            )}
-
-            {showFeedback && (
-              <div className="w-full p-6 bg-white rounded-3xl border border-[#d0d5dd] flex-col justify-start items-start gap-4 inline-flex">
-                <div className="self-stretch pb-3 border-b border-[#eaecf0] justify-between items-center inline-flex">
-                  <div className="text-[#101828] text-lg font-semibold font-['Inter'] leading-7">
-                    Feedback on your answer
-                  </div>
-                  <div className="justify-start items-center gap-2 flex">
-                    <div className="p-2.5 rounded-lg justify-center items-center gap-2 flex">
-                      <div className="w-5 h-5 px-[2.50px] py-[1.67px] justify-center items-center flex" />
-                    </div>
-                  </div>
-                </div>
-                <div className="self-stretch flex-col justify-start items-start gap-4 inline-flex">
-                  {isLoadingFeedback ? (
-                    <div className="text-[#667085] text-lg font-normal font-['Inter'] leading-7">
-                      Analyzing your answer...
-                    </div>
-                  ) : (
-                    <div className="text-[#101828] text-lg font-normal font-['Inter'] leading-7 whitespace-pre-line">
-                      {feedback}
-                    </div>
-                  )}
-                </div>
               </div>
             )}
 

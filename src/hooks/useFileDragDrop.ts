@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 import { useState, useEffect, useRef, DragEvent } from "react";
 
 interface FileDragDropConfig {
@@ -23,13 +25,13 @@ export const useFileDragDrop = ({
     null
   );
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const progressIntervalRef = useRef<NodeJS.Timeout>();
+  const progressIntervalRef = useRef<number | undefined>();
 
   // Clean up resources when the component unmounts
   useEffect(() => {
     return () => {
       if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
+        window.clearInterval(progressIntervalRef.current);
       }
       if (imagePreview) {
         URL.revokeObjectURL(imagePreview);
@@ -80,7 +82,7 @@ export const useFileDragDrop = ({
     }
 
     if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
+      window.clearInterval(progressIntervalRef.current);
     }
 
     setUploadingFile({
@@ -92,13 +94,13 @@ export const useFileDragDrop = ({
 
     // Simulate upload progress
     let progress = 0;
-    progressIntervalRef.current = setInterval(() => {
+    progressIntervalRef.current = window.setInterval(() => {
       progress += 5;
       if (progress <= 100) {
         setUploadingFile((prev) => (prev ? { ...prev, progress } : null));
         if (progress === 100) {
           if (progressIntervalRef.current) {
-            clearInterval(progressIntervalRef.current);
+            window.clearInterval(progressIntervalRef.current);
           }
           onFileSelect?.(file);
         }
@@ -110,7 +112,7 @@ export const useFileDragDrop = ({
 
   const cancelUpload = () => {
     if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
+      window.clearInterval(progressIntervalRef.current);
     }
     if (imagePreview) {
       URL.revokeObjectURL(imagePreview);
