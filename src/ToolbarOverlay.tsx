@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { useOverlayManager } from "./OverlayManager";
 import { Highlighter, MessageSquare, Plus } from "lucide-react";
 import { useMultiParagraphNotes } from "./MultiParagraphNotesContext";
+import { useBottomBar } from "./Components/BottomBarContext";
 
 interface ToolbarPosition {
   top: number;
@@ -98,6 +99,7 @@ const ToolbarOverlay: React.FC<{
   const noteButtonRef = useRef<HTMLButtonElement>(null);
   const [noteMenuOpen, setNoteMenuOpen] = useState(false);
   const { paragraphRefs, activeParagraphId } = useMultiParagraphNotes();
+  const { openAsk } = useBottomBar();
 
   // Click-outside handler (for toolbar and submenu)
   useEffect(() => {
@@ -124,6 +126,9 @@ const ToolbarOverlay: React.FC<{
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // Helper to get selected text
+  const getSelectedText = () => window.getSelection()?.toString() || "";
 
   if (!position || !containerRef?.current) return null;
 
@@ -166,7 +171,10 @@ const ToolbarOverlay: React.FC<{
       <button
         className="flex items-center px-3 py-2 bg-white rounded space-x-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         aria-label="Ask about selected text"
-        onClick={() => openOverlay("ask", position, containerRef)}
+        onClick={() => {
+          openAsk(getSelectedText());
+          closeOverlay();
+        }}
       >
         <MessageSquare size={20} className="text-[#344154]" />
         <span
